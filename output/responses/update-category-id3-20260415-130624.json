@@ -1,0 +1,8 @@
+{
+  "capturedAt": "2026-04-15T13:06:24",
+  "routeId": "update-category",
+  "httpMethod": "PUT",
+  "endpoint": "http://localhost:8080/api/categories/3",
+  "httpStatus": 200,
+  "response": {"id":3,"name":"Images Updated","description":"Updated image category"}
+}

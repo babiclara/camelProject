@@ -1,0 +1,8 @@
+{
+  "capturedAt": "2026-04-15T13:06:24",
+  "routeId": "delete-category",
+  "httpMethod": "DELETE",
+  "endpoint": "http://localhost:8080/api/categories/174",
+  "httpStatus": 204,
+  "response": {"deleted": true, "deletedId": 174}
+}

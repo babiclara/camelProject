@@ -1,0 +1,8 @@
+{
+  "capturedAt": "2026-04-15T13:06:24",
+  "routeId": "create-category",
+  "httpMethod": "POST",
+  "endpoint": "http://localhost:8080/api/categories",
+  "httpStatus": 201,
+  "response": {"id":173,"name":"Images","description":"Image files such as PNG and JPEG"}
+}

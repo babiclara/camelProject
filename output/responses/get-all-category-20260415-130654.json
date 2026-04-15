@@ -1,0 +1,8 @@
+{
+  "capturedAt": "2026-04-15T13:06:54",
+  "routeId": "get-all-category",
+  "httpMethod": "GET",
+  "endpoint": "http://localhost:8080/api/categories",
+  "httpStatus": 200,
+  "response": [{"id":3,"name":"Images Updated","description":"Updated image category"},{"id":33,"name":"Documents Updated","description":"Updated document category"},{"id":99,"name":"Videos Updated","description":"Updated video category"},{"id":100,"name":"Documents","description":"Office documents such as DOCX and PDF"},{"id":130,"name":"Images","description":"Image files such as PNG and JPEG"},{"id":132,"name":"Documents","description":"Office documents such as DOCX and PDF"},{"id":134,"name":"Videos","description":"Video files such as MP4 and AVI"},{"id":135,"name":"Images","description":"Image files such as PNG and JPEG"},{"id":136,"name":"Documents","description":"Office documents such as DOCX and PDF"},{"id":138,"name":"Videos","description":"Video files such as MP4 and AVI"},{"id":140,"name":"Images","description":"Image files such as PNG and JPEG"},{"id":141,"name":"Images","description":"Image files such as PNG and JPEG"},{"id":143,"name":"Documents","description":"Office documents such as DOCX and PDF"},{"id":144,"name":"Videos","description":"Video files such as MP4 and AVI"},{"id":173,"name":"Images","description":"Image files such as PNG and JPEG"},{"id":175,"name":"Documents","description":"Office documents such as DOCX and PDF"}]
+}
