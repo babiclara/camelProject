@@ -49,7 +49,7 @@ public class DeleteRoute extends RouteBuilder {
                     exchange.getIn().setHeader("deleteId", id);
                 })
 
-                .setBody(constant(null))
+                .setBody(constant((Object) null))
                 .setHeader("CamelHttpMethod", constant("DELETE"))
                 .setHeader("EndpointURL", simple(AppConfig.BASE_URL + "/${header.deleteId}"))
                 .toD(AppConfig.BASE_URL + "/${header.deleteId}?httpMethod=DELETE")
