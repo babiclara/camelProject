@@ -1,0 +1,63 @@
+{
+  "title": "LE5 — Clara Babic",
+  "uid": "le5-clara-babic",
+  "schemaVersion": 38,
+  "refresh": "10s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Orders Processed (RabbitMQ)",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [{
+        "expr": "increase(demo_orders_8894_processed_total[5m])",
+        "legendFormat": "Orders"
+      }],
+      "datasource": "Prometheus"
+    },
+    {
+      "id": 2,
+      "title": "Sensor Readings Published (Kafka Avro)",
+      "type": "stat",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "targets": [{
+        "expr": "increase(demo_sensors_8894_processed_total[5m])",
+        "legendFormat": "Sensors"
+      }],
+      "datasource": "Prometheus"
+    },
+    {
+      "id": 3,
+      "title": "Payments Published (Kafka Protobuf)",
+      "type": "stat",
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "targets": [{
+        "expr": "increase(demo_payments_8894_processed_total[5m])",
+        "legendFormat": "Payments"
+      }],
+      "datasource": "Prometheus"
+    },
+    {
+      "id": 4,
+      "title": "Duplicate Payments Blocked (Idempotent Consumer)",
+      "type": "stat",
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "targets": [{
+        "expr": "increase(demo_duplicates_8894_blocked_total[5m])",
+        "legendFormat": "Duplicates"
+      }],
+      "datasource": "Prometheus"
+    },
+    {
+      "id": 5,
+      "title": "Payment Rate per Minute",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 4, "w": 24, "h": 8 },
+      "targets": [{
+        "expr": "rate(demo_payments_8894_processed_total[1m])",
+        "legendFormat": "Payments/min"
+      }],
+      "datasource": "Prometheus"
+    }
+  ]
+}

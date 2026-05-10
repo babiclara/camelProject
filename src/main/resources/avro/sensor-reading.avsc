@@ -1,0 +1,16 @@
+{
+  "type": "record",
+  "name": "SensorReading",
+  "namespace": "hr.algebra.le5.s8894.avro",
+  "fields": [
+    { "name": "deviceId",     "type": "string" },
+    { "name": "location",     "type": "string" },
+    { "name": "temperature",  "type": "double" },
+    { "name": "humidity",     "type": "double" },
+    {
+      "name": "timestamp",
+      "type": { "type": "long", "logicalType": "timestamp-millis" }
+    },
+    { "name": "categoryName", "type": "string", "doc": "Name of the category entity from the LE1 backend" }
+  ]
+}

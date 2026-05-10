@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option java_package = "hr.algebra.le5.s8894.proto";
+option java_outer_classname = "PaymentProto";
+
+enum PaymentStatus {
+  PAYMENT_STATUS_UNSPECIFIED = 0;
+  PENDING = 1;
+  COMPLETED = 2;
+  FAILED = 3;
+  REFUNDED = 4;
+}
+
+message PaymentEvent {
+  string payment_id    = 1;
+  string from_account  = 2;
+  string to_account    = 3;
+  string amount        = 4;
+  string currency      = 5;
+  int64  timestamp     = 6;
+  PaymentStatus status = 7;
+
+  string category_description = 10;
+}

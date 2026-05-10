@@ -1,36 +1,28 @@
 package hr.algebra.camelle4.route;
 
 import hr.algebra.camelle4.config.AppConfig;
+import hr.algebra.camelle4.model.OrderEvent;
 import hr.algebra.camelle4.processor.ResponseProcessor;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * Route 2 — Retrieve a Single Category (GET ONE).
- * HTTP Method: GET
- * Endpoint: http://localhost:8080/api/categories/{id}
- * Timer Period: 15 seconds
- * Dynamic ID: Cycles through IDs 3, 33, 99
- * Output: output/responses/get-one-category-idN-TIMESTAMP.json
- */
+import java.time.Instant;
+import java.util.UUID;
 
 @Component
 public class GetOneRoute extends RouteBuilder {
 
-    @Autowired
-    private ResponseProcessor responseProcessor;
+    @Autowired private ResponseProcessor responseProcessor;
+    @Autowired private MeterRegistry meterRegistry;
 
     private final Long[] ids = {3L, 33L, 99L};
     private int index = 0;
 
     @Override
     public void configure() {
-        onException(Exception.class)
-                .handled(true)
-                .log("ERROR on get-one-category: ${exception.message}")
-                .setBody(simple("{\"error\": \"${exception.message}\"}"))
-                .to("file:" + AppConfig.OUTPUT_DIR + "?fileName=get-one-category-error-${date:now:yyyyMMdd-HHmmss}.json");
+        errorHandler(RouteSupport.defaultErrorHandler());
 
         from("timer:get-one-category?period=15000")
                 .routeId("get-one-category")
@@ -41,10 +33,39 @@ public class GetOneRoute extends RouteBuilder {
                     index++;
                 })
                 .setHeader("CamelHttpMethod", constant("GET"))
-                .setHeader("EndpointURL", simple(AppConfig.BASE_URL + "/${header.currentId}"))
                 .toD(AppConfig.BASE_URL + "/${header.currentId}?httpMethod=GET")
                 .process(responseProcessor)
-                .log("COMPLETED: Fetched category with ID ${header.currentId}")
-                .toD("file:" + AppConfig.OUTPUT_DIR + "?fileName=get-one-category-id${header.currentId}-${date:now:yyyyMMdd-HHmmss}.json");
+                .log("COMPLETED: Fetched category ${header.currentId}")
+                .toD("file:" + AppConfig.OUTPUT_DIR + "?fileName=get-one-category-id${header.currentId}-${date:now:yyyyMMdd-HHmmss}.json")
+                .process(exchange -> {
+                    String body = exchange.getIn().getBody(String.class);
+                    String name = extractField(body, "name");
+                    OrderEvent order = new OrderEvent(
+                            UUID.randomUUID().toString(), name, 19.99, "EUR", Instant.now());
+                    exchange.getIn().setBody(order);
+                })
+                .to(AppConfig.DIRECT_PUBLISH_ORDER);
+
+        from(AppConfig.DIRECT_PUBLISH_ORDER)
+                .routeId("rabbit-orders-publisher")
+                .marshal().json()
+                .to("spring-rabbitmq:" + AppConfig.RABBIT_EXCHANGE + "?routingKey=" + AppConfig.RABBIT_ROUTING_KEY + "&autoDeclare=false");
+
+        from("spring-rabbitmq:" + AppConfig.RABBIT_EXCHANGE + "?queues=" + AppConfig.RABBIT_QUEUE + "&autoDeclare=false")
+                .routeId("rabbit-orders-consumer")
+                .unmarshal().json(OrderEvent.class)
+                .process(exchange -> {
+                    meterRegistry.counter(AppConfig.METRIC_ORDERS).increment();
+                    OrderEvent o = exchange.getIn().getBody(OrderEvent.class);
+                    log.info("Order processed: {} - {}", o.getOrderId(), o.getCustomer());
+                });
+    }
+
+    private String extractField(String json, String field) {
+        String key = "\"" + field + "\":\"";
+        int start = json.indexOf(key);
+        if (start < 0) return "unknown";
+        start += key.length();
+        return json.substring(start, json.indexOf("\"", start));
     }
 }
