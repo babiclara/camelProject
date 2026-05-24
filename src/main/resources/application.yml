@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: camel-le4
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: ENC(osDunkBLLE4=)
+
+server:
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: file:C:/Users/lara/IdeaProjects/camelProject/src/main/resources/keystore.p12
+    key-store-type: PKCS12
+    key-store-password: changeit
+    key-alias: camel-le4
+
+camel:
+  springboot:
+    main-run-controller: true
+  component:
+    kafka:
+      brokers: localhost:9094
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+logging:
+  level:
+    org.apache.camel: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    prometheus:
+      enabled: true
+
+app:
+  security:
+    aes-key: ENC(4s7g50Nlfl4CQDg8MkwQJ2EDuCMLh84G2yeYLxW3Qf4=)
+    aes-iv:  ENC(Kownf5Jy74au5O3bp7kG40c5Jl++zED3oGedf21Z6NI=)
+
+jasypt:
+  encryptor:
+    algorithm: PBEWithMD5AndDES
+    iv-generator-classname: org.jasypt.iv.NoIvGenerator
+    salt-generator-classname: org.jasypt.salt.ZeroSaltGenerator

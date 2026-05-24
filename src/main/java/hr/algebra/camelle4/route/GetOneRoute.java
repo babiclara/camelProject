@@ -5,6 +5,7 @@ import hr.algebra.camelle4.model.OrderEvent;
 import hr.algebra.camelle4.processor.ResponseProcessor;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.converter.crypto.CryptoDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,8 @@ public class GetOneRoute extends RouteBuilder {
 
     @Autowired private ResponseProcessor responseProcessor;
     @Autowired private MeterRegistry meterRegistry;
+    @Autowired private CryptoDataFormat orderCryptoDataFormat;
+
 
     private final Long[] ids = {3L, 33L, 99L};
     private int index = 0;
@@ -49,16 +52,23 @@ public class GetOneRoute extends RouteBuilder {
         from(AppConfig.DIRECT_PUBLISH_ORDER)
                 .routeId("rabbit-orders-publisher")
                 .marshal().json()
-                .to("spring-rabbitmq:" + AppConfig.RABBIT_EXCHANGE + "?routingKey=" + AppConfig.RABBIT_ROUTING_KEY + "&autoDeclare=false");
+                .marshal(orderCryptoDataFormat)
+                .log("Publishing ENCRYPTED order to RabbitMQ")
+                .to("spring-rabbitmq:" + AppConfig.RABBIT_EXCHANGE
+                        + "?routingKey=" + AppConfig.RABBIT_ROUTING_KEY
+                        + "&autoDeclare=false");
 
-        from("spring-rabbitmq:" + AppConfig.RABBIT_EXCHANGE + "?queues=" + AppConfig.RABBIT_QUEUE + "&autoDeclare=false")
-                .routeId("rabbit-orders-consumer")
-                .unmarshal().json(OrderEvent.class)
-                .process(exchange -> {
-                    meterRegistry.counter(AppConfig.METRIC_ORDERS).increment();
-                    OrderEvent o = exchange.getIn().getBody(OrderEvent.class);
-                    log.info("Order processed: {} - {}", o.getOrderId(), o.getCustomer());
-                });
+//        from("spring-rabbitmq:" + AppConfig.RABBIT_EXCHANGE
+//                + "?queues=" + AppConfig.RABBIT_QUEUE
+//                + "&autoDeclare=false")
+//                .routeId("rabbit-orders-consumer")
+//                .unmarshal(orderCryptoDataFormat)
+//                .unmarshal().json(OrderEvent.class)
+//                .process(exchange -> {
+//                    meterRegistry.counter(AppConfig.METRIC_ORDERS).increment();
+//                    OrderEvent o = exchange.getIn().getBody(OrderEvent.class);
+//                    log.info("Order processed: {} - {}", o.getOrderId(), o.getCustomer());
+//                });
     }
 
     private String extractField(String json, String field) {
