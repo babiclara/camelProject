@@ -11,9 +11,9 @@ server:
   port: 8443
   ssl:
     enabled: true
-    key-store: file:C:/Users/lara/IdeaProjects/camelProject/src/main/resources/keystore.p12
+    key-store: classpath:keystore.p12
     key-store-type: PKCS12
-    key-store-password: changeit
+    key-store-password: ${SSL_KEYSTORE_PASSWORD:changeit}
     key-alias: camel-le4
 
 camel:

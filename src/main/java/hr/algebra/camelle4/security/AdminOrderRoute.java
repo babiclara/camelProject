@@ -5,6 +5,8 @@ import org.apache.camel.CamelAuthorizationException;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.spring.security.SpringSecurityAuthorizationPolicy;
+import org.apache.camel.converter.crypto.CryptoDataFormat;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -14,6 +16,9 @@ import java.util.function.Supplier;
 
 @Component
 public class AdminOrderRoute extends RouteBuilder {
+
+    @Autowired
+    private CryptoDataFormat orderCryptoDataFormat;
 
     @Override
     public void configure() {
@@ -42,7 +47,8 @@ public class AdminOrderRoute extends RouteBuilder {
         from("platform-http:/api/secure/admin-order?httpMethodRestrict=GET,POST")
                 .routeId("admin-order-route")
                 .policy(adminPolicy)
-                .log("ADMIN access granted - forwarding to RabbitMQ")
+                .log("ADMIN access granted - encrypting and forwarding to RabbitMQ")
+                .marshal(orderCryptoDataFormat)
                 .setExchangePattern(org.apache.camel.ExchangePattern.InOnly)
                 .to("spring-rabbitmq:" + AppConfig.RABBIT_EXCHANGE
                         + "?routingKey=" + AppConfig.RABBIT_ROUTING_KEY
@@ -51,5 +57,11 @@ public class AdminOrderRoute extends RouteBuilder {
                 .setHeader("Content-Type", constant("application/json"))
                 .setBody(constant("""
                         {"status": "accepted", "message": "Order queued."}"""));
+//        from("spring-rabbitmq:" + AppConfig.RABBIT_EXCHANGE
+//                + "?queues=" + AppConfig.RABBIT_QUEUE
+//                + "&autoDeclare=false")
+//                .routeId("admin-order-consumer")
+//                .unmarshal(orderCryptoDataFormat)
+//                .log("Decrypted order received: ${body}");
     }
 }
